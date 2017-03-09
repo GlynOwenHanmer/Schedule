@@ -1,8 +1,4 @@
-﻿using System;
-using NUnit.Framework;
-using UnityEngine;
-using GOH.Schedule.Tests;
-using GOH.Schedule;
+﻿using NUnit.Framework;
 using System.Collections.Generic;
 
 namespace GOH.Schedule.Tests
@@ -19,6 +15,16 @@ namespace GOH.Schedule.Tests
         [SetUp]
         public void SetUp()
         {
+            // items[0] Period: 0-0
+            // items[1] Period: 0-1
+            // items[2] Period: 1-3
+            // items[3] Period: 3-6
+            // items[4] Period: 6-10
+            // items[5] Period: 10-15
+            // items[6] Period: 15-21
+            // items[7] Period: 21-28
+            // items[8] Period: 28-36
+            // items[9] Period: 36-45
             for (int i = 0; i < num_of_items; i++)
             {
                 this.items[i] = new Item<object>((float)i, new object());
@@ -29,8 +35,10 @@ namespace GOH.Schedule.Tests
 
         // TESTS
         // Behaviour if no items are present
+        // Behaviour if only one item is present
         // Behaviour when time wraps around
         // Bevaviour when time is exactly on a crossover
+        // NextAt should return first object when time is at last object
 
         [Test]
         public void Test_CanRunTest()
@@ -100,37 +108,54 @@ namespace GOH.Schedule.Tests
             foreach (AtTestSet<object> testSet in testSets)
             {
                 object actual = this.schedule.at(testSet.Time);
-                checkAtResults(actual, testSet.ExpectedResult, testIndex++);
+                checkAtResults(testSet.ExpectedResult, actual, testIndex++);
             }
         }
 
-        private void checkAtResults(object actual, object expected)
-        {
-            Assert.AreEqual(actual, expected, "at() returned unexpected results.");
-        }
-
-        private void checkAtResults(object actual, object expected, int testIndex)
+        private void checkAtResults(object expected, object actual, int testIndex)
         {
             string message = string.Format("Test index: {0}\nat() returned unexpected results.", testIndex);
-            Assert.AreEqual(actual, expected, message);
+            Assert.AreEqual(expected, actual, message);
         }
 
         [Test]
         public void Test_NextAt_ThrowsException_ForEmptySchedule()
         {
-            Assert.Fail();
-        }
-
-        [Test]
-        public void Test_NextAt_ThrowsException_ForNullTime()
-        {
-            Assert.Fail();
+            try
+            {
+                this.emptySchedule.nextAt(-1.0f);
+            }
+            catch (System.InvalidOperationException e)
+            {
+                if (e.Message != Schedule<object>.no_items_string)
+                {
+                    string message = string.Format("Unexpected error message for empty schedule.\n\tActual  : {0}\n\tExpected: {1}", e.Message, Schedule<object>.no_items_string);
+                    Assert.Fail(message);
+                }
+                Assert.Pass();
+            }
+            Assert.Fail("Expected exception but none thrown.");
         }
 
         [Test]
         public void Test_NextAt_ReturnsExpectedResults_ForKnownTimes()
         {
-            Assert.Fail();
+            LinkedList<AtTestSet<object>> testSets = new LinkedList<AtTestSet<object>>();
+            testSets.AddLast(new AtTestSet<object>(0f, this.items[2]));
+            testSets.AddLast(new AtTestSet<object>(1.0f, this.items[3]));
+            testSets.AddLast(new AtTestSet<object>(1.5f, this.items[3]));
+            testSets.AddLast(new AtTestSet<object>(2f, this.items[3]));
+            testSets.AddLast(new AtTestSet<object>(3f, this.items[4]));
+            testSets.AddLast(new AtTestSet<object>(28f, this.items[9]));
+            testSets.AddLast(new AtTestSet<object>(44f, this.items[0]));
+            testSets.AddLast(new AtTestSet<object>(45f, this.items[2]));
+
+            int testIndex = 0;
+            foreach (AtTestSet<object> testSet in testSets)
+            {
+                object actual = this.schedule.nextAt(testSet.Time);
+                checkAtResults(testSet.ExpectedResult, actual, testIndex++);
+            }
         }
 
         class AtTestSet<K>

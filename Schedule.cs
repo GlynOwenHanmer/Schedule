@@ -47,12 +47,24 @@ namespace GOH.Schedule
                 }
                 periodStart = periodEnd;
             }
-            return null;
+            throw new InvalidOperationException(string.Format("Method should not reach here. Other exceptions should be thrown earlier to handle state of current Schedule.\ntime: {0}\nSchedule state: {1}", time, this));
         }
 
         public Item<T> nextAt(float time)
         {
-            throw new NotImplementedException();
+            if (!HasItems) throw new InvalidOperationException(no_items_string);
+            time = time % Length;
+            float periodStart = 0f;
+            for (int i = 0; i < items.Length; i++)
+            {
+                float periodEnd = periodStart + items[i].Length;
+                if (periodStart <= time && time < periodEnd)
+                {
+                    return items[++i % items.Length];
+                }
+                periodStart = periodEnd;
+            }
+            throw new InvalidOperationException(string.Format("Method should not reach here. Other exceptions should be thrown earlier to handle state of current Schedule.\ntime: {0}\nSchedule state: {1}", time, this));
         }
 
         public bool HasItems { get { return this.items.Length > 0; } }

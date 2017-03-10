@@ -37,9 +37,6 @@ namespace GOH.Schedule.Tests
         // TESTS
         // Behaviour if no items are present
         // Behaviour if only one item is present
-        // Behaviour when time wraps around
-        // Bevaviour when time is exactly on a crossover
-        // NextAt should return first object when time is at last object
 
         [Test]
         public void Test_CanRunTest()
@@ -219,6 +216,19 @@ namespace GOH.Schedule.Tests
         {
             object actual = this.schedule.nextAt(testSet.Time);
             checkResults(testName, testSet, actual, testIndex);
+        }
+
+        [Test]
+        public void Test_ScheduleWithSingleItem_ReturnsItem_ForAt_And_NextAt()
+        {
+            Item<string> item = new Item<string>(39123098f, "NOW THEN");
+            Item<string>[] items = new Item<string>[] {item};
+            Schedule<string> schedule = new Schedule<string>(item);
+            Item<string> at = schedule.at(321f);
+            Item<string> nextAt = schedule.at(321f);
+            Assert.AreSame(item, at, "Single item not returned when at is called.");
+            Assert.AreSame(item, nextAt, "Single item not returned when nextAt is called.");
+            Assert.AreSame(at, nextAt, "at and nextAt did not return the same item for a schedule with a single item.");
         }
 
         class AtTestSet<K>

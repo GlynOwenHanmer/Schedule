@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using System.Collections.Generic;
+using System;
 
 namespace GOH.Schedule.Tests
 {
@@ -103,19 +104,42 @@ namespace GOH.Schedule.Tests
             testSets.AddLast(new AtTestSet<object>(1.5f, this.items[2]));
             testSets.AddLast(new AtTestSet<object>(2f, this.items[2]));
             testSets.AddLast(new AtTestSet<object>(3f, this.items[3]));
+            testSets.AddLast(new AtTestSet<object>(28f, this.items[8]));
 
             int testIndex = 0;
             foreach (AtTestSet<object> testSet in testSets)
             {
-                object actual = this.schedule.at(testSet.Time);
-                checkAtResults(testSet.ExpectedResult, actual, testIndex++);
+                testKnownTimeInBasePeriod(testSet, testIndex);
+                testKnownTimeInNegativePeriod(testSet, testIndex);
+                testKnownTimeInPositiveNonBasePeriod(testSet, testIndex);
+                testIndex++;
             }
         }
 
-        private void checkAtResults(object expected, object actual, int testIndex)
+        private void testKnownTimeInBasePeriod(AtTestSet<object> testSet, int testIndex)
         {
-            string message = string.Format("Test index: {0}\nat() returned unexpected results.", testIndex);
-            Assert.AreEqual(expected, actual, message);
+            object actual = this.schedule.at(testSet.Time);
+            checkAtResults("base period", testSet, actual, testIndex);
+        }
+
+        private void testKnownTimeInNegativePeriod(AtTestSet<object> testSet, int testIndex)
+        {
+            testSet.Time -= this.schedule.Length;
+            object actual = this.schedule.at(testSet.Time);
+            checkAtResults("negative period", testSet, actual, testIndex);
+        }
+
+        private void testKnownTimeInPositiveNonBasePeriod(AtTestSet<object> testSet, int testIndex)
+        {
+            testSet.Time += 20 * this.schedule.Length;
+            object actual = this.schedule.at(testSet.Time);
+            checkAtResults("positive non-base-period", testSet, actual, testIndex);
+        }
+
+        private void checkAtResults(string testType, AtTestSet<object> testSet, object actual, int testIndex)
+        {
+            string message = string.Format("Test index: {0}\nat() returned unexpected results for {1} test.\n\tTime: {2}", testIndex, testType, testSet.Time);
+            Assert.AreEqual(testSet.ExpectedResult, actual, message);
         }
 
         [Test]
@@ -154,7 +178,7 @@ namespace GOH.Schedule.Tests
             foreach (AtTestSet<object> testSet in testSets)
             {
                 object actual = this.schedule.nextAt(testSet.Time);
-                checkAtResults(testSet.ExpectedResult, actual, testIndex++);
+                checkAtResults("base period", testSet, actual, testIndex++);
             }
         }
 

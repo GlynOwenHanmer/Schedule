@@ -118,22 +118,25 @@ namespace GOH.Schedule.Tests
 
         private void testKnownTimeInBasePeriod(AtTestSet<object> testSet, int testIndex)
         {
+            this.testSet("at base period", testSet, testIndex);
+        }
+
+        private void testSet(string testName, AtTestSet<object> testSet, int testIndex)
+        {
             object actual = this.schedule.at(testSet.Time);
-            checkAtResults("base period", testSet, actual, testIndex);
+            checkAtResults(testName, testSet, actual, testIndex);
         }
 
         private void testKnownTimeInNegativePeriod(AtTestSet<object> testSet, int testIndex)
         {
             testSet.Time -= this.schedule.Length;
-            object actual = this.schedule.at(testSet.Time);
-            checkAtResults("negative period", testSet, actual, testIndex);
+            this.testSet("at negative period", testSet, testIndex);
         }
 
         private void testKnownTimeInPositiveNonBasePeriod(AtTestSet<object> testSet, int testIndex)
         {
             testSet.Time += 20 * this.schedule.Length;
-            object actual = this.schedule.at(testSet.Time);
-            checkAtResults("positive non-base-period", testSet, actual, testIndex);
+            this.testSet("at positive non-base-period", testSet, testIndex);
         }
 
         private void checkAtResults(string testType, AtTestSet<object> testSet, object actual, int testIndex)

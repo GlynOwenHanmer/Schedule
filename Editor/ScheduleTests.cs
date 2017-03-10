@@ -107,41 +107,47 @@ namespace GOH.Schedule.Tests
             testSets.AddLast(new AtTestSet<object>(28f, this.items[8]));
 
             int testIndex = 0;
+            string testName = "at";
             foreach (AtTestSet<object> testSet in testSets)
             {
-                testKnownTimeInBasePeriod(testSet, testIndex);
-                testKnownTimeInNegativePeriod(testSet, testIndex);
-                testKnownTimeInPositiveNonBasePeriod(testSet, testIndex);
-                testIndex++;
+                performAtPeriodTests(testIndex++, testSet);
             }
         }
 
-        private void testKnownTimeInBasePeriod(AtTestSet<object> testSet, int testIndex)
+        private void performAtPeriodTests(int testIndex, AtTestSet<object> testSet)
         {
-            this.testSet("at base period", testSet, testIndex);
+            string testName = "at";
+            testAtKnownTimeInBasePeriod(testName, testSet, testIndex);
+            testAtKnownTimeInNegativePeriod(testName, testSet, testIndex);
+            testAtKnownTimeInPositiveNonBasePeriod(testName, testSet, testIndex);
         }
 
-        private void testSet(string testName, AtTestSet<object> testSet, int testIndex)
+        private void testAtKnownTimeInBasePeriod(string testName, AtTestSet<object> testSet, int testIndex)
         {
-            object actual = this.schedule.at(testSet.Time);
-            checkAtResults(testName, testSet, actual, testIndex);
+            this.testAtSet(testName + " base period", testSet, testIndex);
         }
 
-        private void testKnownTimeInNegativePeriod(AtTestSet<object> testSet, int testIndex)
+        private void testAtKnownTimeInNegativePeriod(string testName, AtTestSet<object> testSet, int testIndex)
         {
             testSet.Time -= this.schedule.Length;
-            this.testSet("at negative period", testSet, testIndex);
+            this.testAtSet(testName + " negative period", testSet, testIndex);
         }
 
-        private void testKnownTimeInPositiveNonBasePeriod(AtTestSet<object> testSet, int testIndex)
+        private void testAtKnownTimeInPositiveNonBasePeriod(string testName, AtTestSet<object> testSet, int testIndex)
         {
             testSet.Time += 20 * this.schedule.Length;
-            this.testSet("at positive non-base-period", testSet, testIndex);
+            this.testAtSet(testName + " positive non-base-period", testSet, testIndex);
         }
 
-        private void checkAtResults(string testType, AtTestSet<object> testSet, object actual, int testIndex)
+        private void testAtSet(string testName, AtTestSet<object> testSet, int testIndex)
         {
-            string message = string.Format("Test index: {0}\nat() returned unexpected results for {1} test.\n\tTime: {2}", testIndex, testType, testSet.Time);
+            object actual = this.schedule.at(testSet.Time);
+            checkResults(testName, testSet, actual, testIndex);
+        }
+
+        private void checkResults(string testType, AtTestSet<object> testSet, object actual, int testIndex)
+        {
+            string message = string.Format("Test index: {0}\nreturned unexpected results for {1} test.\n\tTime: {2}", testIndex, testType, testSet.Time);
             Assert.AreEqual(testSet.ExpectedResult, actual, message);
         }
 
@@ -180,9 +186,39 @@ namespace GOH.Schedule.Tests
             int testIndex = 0;
             foreach (AtTestSet<object> testSet in testSets)
             {
-                object actual = this.schedule.nextAt(testSet.Time);
-                checkAtResults("base period", testSet, actual, testIndex++);
+                performNextAtPeriodTests(testIndex++, testSet);
             }
+        }
+
+        private void performNextAtPeriodTests(int testIndex, AtTestSet<object> testSet)
+        {
+            string testName = "nextAt";
+            testNextAtKnownTimeInBasePeriod(testName, testSet, testIndex);
+            testNextAtKnownTimeInNegativePeriod(testName, testSet, testIndex);
+            testNextAtKnownTimeInPositiveNonBasePeriod(testName, testSet, testIndex);
+        }
+
+        private void testNextAtKnownTimeInBasePeriod(string testName, AtTestSet<object> testSet, int testIndex)
+        {
+            this.testNextAtSet(testName + " base period", testSet, testIndex);
+        }
+
+        private void testNextAtKnownTimeInNegativePeriod(string testName, AtTestSet<object> testSet, int testIndex)
+        {
+            testSet.Time -= this.schedule.Length;
+            this.testNextAtSet(testName + " negative period", testSet, testIndex);
+        }
+
+        private void testNextAtKnownTimeInPositiveNonBasePeriod(string testName, AtTestSet<object> testSet, int testIndex)
+        {
+            testSet.Time += 20 * this.schedule.Length;
+            this.testNextAtSet(testName + " positive non-base-period", testSet, testIndex);
+        }
+
+        private void testNextAtSet(string testName, AtTestSet<object> testSet, int testIndex)
+        {
+            object actual = this.schedule.nextAt(testSet.Time);
+            checkResults(testName, testSet, actual, testIndex);
         }
 
         class AtTestSet<K>
@@ -197,5 +233,4 @@ namespace GOH.Schedule.Tests
             }
         }
     }
-
 }

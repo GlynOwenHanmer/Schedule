@@ -36,7 +36,7 @@ namespace GOH.Schedule
         public Item<T> at(float time)
         {
             if (!HasItems) throw new InvalidOperationException(no_items_string);
-            time = getBasePeriodValue(time, Length);
+            time = getTimeInBasePeriod(time, Length);
             float periodStart = 0f;
             foreach (Item<T> item in items)
             {
@@ -53,7 +53,7 @@ namespace GOH.Schedule
         public Item<T> nextAt(float time)
         {
             if (!HasItems) throw new InvalidOperationException(no_items_string);
-            time = time % Length;
+            time = getTimeInBasePeriod(time, Length);
             float periodStart = 0f;
             for (int i = 0; i < items.Length; i++)
             {
@@ -69,7 +69,7 @@ namespace GOH.Schedule
 
         public bool HasItems { get { return this.items.Length > 0; } }
 
-        private float getBasePeriodValue(float time, float basePeriodLength)
+        private float getTimeInBasePeriod(float time, float basePeriodLength)
         {
             float ret = time % basePeriodLength;
             // for a negative value, modulus returns negative remainder, so must add basePeriodLength to ensure value is in positive range

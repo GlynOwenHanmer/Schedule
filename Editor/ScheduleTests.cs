@@ -222,7 +222,6 @@ namespace GOH.Schedule.Tests
         public void Test_ScheduleWithSingleItem_ReturnsItem_ForAt_And_NextAt()
         {
             Item<string> item = new Item<string>(39123098f, "NOW THEN");
-            Item<string>[] items = new Item<string>[] {item};
             Schedule<string> schedule = new Schedule<string>(item);
             Item<string> at = schedule.at(321f);
             Item<string> nextAt = schedule.at(321f);
